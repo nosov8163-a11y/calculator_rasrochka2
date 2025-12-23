@@ -269,10 +269,10 @@
                     <input type="number" id="downPaymentManualRub" class="manual-input" value="0" min="0" step="10000">
                     <span>₽</span>
                 </div>
-                <input type="range" id="downPayment" min="15" max="80" value="15" step="1">
+                <input type="range" id="downPayment" min="20" max="80" value="20" step="1">
                 <div class="value-display">
-                    <span>15% (нет скидки)</span>
-                    <span id="downPaymentValue">15%</span>
+                    <span>20% (нет скидки)</span>
+                    <span id="downPaymentValue">20%</span>
                     <span>80% (макс. скидка)</span>
                 </div>
                 <div id="downPaymentAmount">0 ₽</div>
@@ -480,7 +480,7 @@
             const deadlineDate = new Date(deliveryDate);
             deadlineDate.setMonth(deadlineDate.getMonth() - 4);
             
-            // Расчет разницы в месяцаи
+            // Расчет разницы в месяцах
             let monthsDiff = (deadlineDate.getFullYear() - nextMonth.getFullYear()) * 12;
             monthsDiff += deadlineDate.getMonth() - nextMonth.getMonth();
             
@@ -745,20 +745,20 @@
         
         // Функция расчета итоговой цены в зависимости от ПВ и срока рассрочки
         function calculateFinalPrice(basePrice, discountPrice, downPaymentPercent, term) {
-            // Если срок рассрочки 5 месяцев или меньше - применяем максимальную скидку
-            if (term <= 5) {
+            // Если срок рассрочки 4 месяца или меньше - применяем максимальную скидку
+            if (term <= 4) {
                 return discountPrice;
             }
             
-            // Для сроков больше 5 месяцев применяем обычную логику расчета
+            // Для сроков больше 4 месяцев применяем обычную логику расчета
             const maxDiscount = basePrice - discountPrice;
             
             // Коэффициент скидки от ПВ (чем больше ПВ, тем больше скидка)
-            const pvFactor = (downPaymentPercent - 15) / (80 - 15);
+            const pvFactor = (downPaymentPercent - 20) / (80 - 20); // Изменили с 15 на 20
             
             // Коэффициент скидки от срока (чем меньше срок, тем больше скидка)
-            // Для сроков больше 5 месяцев скидка уменьшается с увеличением срока
-            const termFactor = (currentMaxTerm - term) / (currentMaxTerm - 5);
+            // Для сроков больше 4 месяцев скидка уменьшается с увеличением срока
+            const termFactor = (currentMaxTerm - term) / (currentMaxTerm - 4); // Изменили с 5 на 4
             
             // Общий коэффициент скидки (среднее между скидкой за ПВ и скидкой за срок)
             const totalDiscountFactor = (pvFactor + termFactor) / 2;
@@ -816,7 +816,7 @@
                 // Пересчитываем процент на основе введенной суммы
                 if (totalCost > 0) {
                     const calculatedPercent = Math.round((downPaymentAmountValue / totalCost) * 100);
-                    const limitedPercent = Math.max(15, Math.min(80, calculatedPercent));
+                    const limitedPercent = Math.max(20, Math.min(80, calculatedPercent)); // Изменили с 15 на 20
                     downPaymentSlider.value = limitedPercent;
                     downPaymentValue.textContent = limitedPercent + '%';
                 }
