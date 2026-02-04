@@ -110,11 +110,44 @@
             gap: 10px;
             margin: 15px 0;
         }
-        .manager-discount {
+        .options-container {
             background: #f8d7da;
             padding: 10px;
             border-radius: 5px;
             margin: 10px 0;
+        }
+        .options-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            background: #dc3545;
+            color: white;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .options-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+        .options-content {
+            display: none;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .options-content.active {
+            display: block;
+        }
+        .options-toggle {
+            font-size: 20px;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+        .options-toggle.active {
+            transform: rotate(45deg);
         }
         .apartment-details {
             margin-top: 20px;
@@ -242,13 +275,31 @@
                 </div>
             </div>
             
-            <div class="manager-discount">
-                <div class="checkbox-group">
-                    <input type="checkbox" id="managerDiscount">
-                    <label for="managerDiscount">Скидка менеджера</label>
+            <!-- Контейнер для опций -->
+            <div class="options-container">
+                <div class="options-header" id="optionsToggle">
+                    <h3>Опции</h3>
+                    <span class="options-toggle" id="optionsToggleIcon">+</span>
                 </div>
-                <div style="font-size: 0.9em; color: #721c24;">
-                    При включенной скидке менеджера цена уменьшается на 100,000 ₽
+                <div class="options-content" id="optionsContent">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="managerDiscount">
+                        <label for="managerDiscount">Скидка менеджера</label>
+                    </div>
+                    <div style="font-size: 0.9em; color: #721c24; margin-bottom: 15px;">
+                        При включенной скидке менеджера цена уменьшается на 100,000 ₽
+                    </div>
+                    
+                    <!-- Скидка риелтора (только для ЖК "ЧИСТЫЕ ПРУДЫ") -->
+                    <div id="realtorDiscountContainer" style="display: none;">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="realtorDiscount">
+                            <label for="realtorDiscount">Скидка риелтора</label>
+                        </div>
+                        <div style="font-size: 0.9em; color: #721c24;">
+                            При включенной скидке риелтора цена уменьшается на 100,000 ₽
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -358,6 +409,11 @@
         const basePriceDisplay = document.getElementById('basePriceDisplay');
         const discountPriceDisplay = document.getElementById('discountPriceDisplay');
         const managerDiscountCheckbox = document.getElementById('managerDiscount');
+        const realtorDiscountContainer = document.getElementById('realtorDiscountContainer');
+        const realtorDiscountCheckbox = document.getElementById('realtorDiscount');
+        const optionsToggle = document.getElementById('optionsToggle');
+        const optionsToggleIcon = document.getElementById('optionsToggleIcon');
+        const optionsContent = document.getElementById('optionsContent');
         const repairCostInput = document.getElementById('repairCost');
         const dduObjectsCostInput = document.getElementById('dduObjectsCost');
         const downPaymentSlider = document.getElementById('downPayment');
@@ -398,7 +454,7 @@
 
         // Текущие цены выбранной квартиры
         let currentBasePrice = 0;
-        let currentDiscountPrice = 0;
+        let currentDiscountPrice = 0; // Теперь это будет 80% от базовой цены
         let currentStatus = '';
         let currentComplex = '';
         let currentSection = '';
@@ -480,7 +536,7 @@
             const deadlineDate = new Date(deliveryDate);
             deadlineDate.setMonth(deadlineDate.getMonth() - 4);
             
-            // Расчет разницы в месяцах
+            // Расчет разницы в месяцаи
             let monthsDiff = (deadlineDate.getFullYear() - nextMonth.getFullYear()) * 12;
             monthsDiff += deadlineDate.getMonth() - nextMonth.getMonth();
             
@@ -507,6 +563,11 @@
             }
             // Значения по умолчанию для неизвестных комплексов
             return 35000;
+        }
+
+        // Функция расчета цены со скидкой (80% от базовой цены)
+        function calculateDiscountPrice(basePrice) {
+            return Math.round(basePrice * 0.8);
         }
 
         // Загрузка данных из Google Таблицы
@@ -555,6 +616,15 @@
             apartmentFullDetails.style.display = 'none';
             resetCalculation();
 
+            // Показываем/скрываем скидку риелтора в зависимости от выбранного ЖК
+            if (complex === 'ЧИСТЫЕ ПРУДЫ') {
+                realtorDiscountContainer.style.display = 'block';
+            } else {
+                realtorDiscountContainer.style.display = 'none';
+                // Сбрасываем чекбокс скидки риелтора
+                realtorDiscountCheckbox.checked = false;
+            }
+
             if (complex) {
                 const sections = [...new Set(apartmentsData
                     .filter(item => item["Название ЖК"] === complex)
@@ -590,7 +660,7 @@
                     .map(item => ({
                         number: item["Номер помещения"],
                         basePrice: item["Цена"],
-                        discountPrice: item["Цена продажи"],
+                        discountPrice: item["Цена продажи"], // Это поле теперь не используется для расчета, но сохраняем для совместимости
                         complex: item["Название ЖК"],
                         section: item["Название дома"],
                         type: item["Тип помещения"],
@@ -606,7 +676,7 @@
                     option.value = apartment.number;
                     option.textContent = `Квартира ${apartment.number}`;
                     option.dataset.basePrice = apartment.basePrice;
-                    option.dataset.discountPrice = apartment.discountPrice;
+                    option.dataset.discountPrice = apartment.discountPrice; // Сохраняем, но не используем для расчета
                     option.dataset.complex = apartment.complex;
                     option.dataset.section = apartment.section;
                     option.dataset.status = apartment.status;
@@ -628,7 +698,8 @@
 
             if (selectedOption.value) {
                 currentBasePrice = parseInt(selectedOption.dataset.basePrice) || 0;
-                currentDiscountPrice = parseInt(selectedOption.dataset.discountPrice) || 0;
+                // Теперь discountPrice рассчитывается как 80% от базовой цены
+                currentDiscountPrice = calculateDiscountPrice(currentBasePrice);
                 currentStatus = selectedOption.dataset.status || '';
                 currentComplex = selectedOption.dataset.complex;
                 currentSection = selectedOption.dataset.section;
@@ -636,6 +707,15 @@
                 currentRoomType = selectedOption.dataset.roomType;
                 currentArea = selectedOption.dataset.area;
                 currentPlanUrl = selectedOption.dataset.planUrl;
+
+                // Показываем/скрываем скидку риелтора в зависимости от выбранного ЖК
+                if (currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
+                    realtorDiscountContainer.style.display = 'block';
+                } else {
+                    realtorDiscountContainer.style.display = 'none';
+                    // Сбрасываем чекбокс скидки риелтора
+                    realtorDiscountCheckbox.checked = false;
+                }
 
                 // Проверяем статус квартиры
                 if (currentStatus === "Продано") {
@@ -723,19 +803,34 @@
         function updatePriceDisplay() {
             basePriceDisplay.textContent = formatMoney(currentBasePrice);
             
-            // Применяем скидку менеджера если чекбокс активен
-            const adjustedDiscountPrice = managerDiscountCheckbox.checked ? 
-                currentDiscountPrice : 
-                currentDiscountPrice + 100000;
-                
+            // Получаем скорректированную цену со скидкой
+            const adjustedDiscountPrice = getAdjustedDiscountPrice();
             discountPriceDisplay.textContent = formatMoney(adjustedDiscountPrice);
         }
 
-        // Функция получения скорректированной цены со скидкой (с учетом чекбокса)
+        // Функция получения скорректированной цены со скидкой
         function getAdjustedDiscountPrice() {
-            return managerDiscountCheckbox.checked ? 
-                currentDiscountPrice : 
-                currentDiscountPrice + 100000;
+            // Начинаем с цены со скидкой (80% от базовой цены)
+            let adjustedPrice = currentDiscountPrice;
+            
+            // Вычитаем скидки в зависимости от выбранных чекбоксов
+            let totalDiscount = 0;
+            
+            // Скидка менеджера применяется для всех ЖК
+            if (managerDiscountCheckbox.checked) {
+                totalDiscount += 100000;
+            }
+            
+            // Скидка риелтора применяется только для ЖК "ЧИСТЫЕ ПРУДЫ"
+            if (currentComplex === 'ЧИСТЫЕ ПРУДЫ' && realtorDiscountCheckbox.checked) {
+                totalDiscount += 100000;
+            }
+            
+            // Применяем общую скидку
+            adjustedPrice -= totalDiscount;
+            
+            // Убеждаемся, что цена не становится отрицательной
+            return Math.max(0, adjustedPrice);
         }
 
         // Функция форматирования чисел в денежный формат
@@ -754,11 +849,10 @@
             const maxDiscount = basePrice - discountPrice;
             
             // Коэффициент скидки от ПВ (чем больше ПВ, тем больше скидка)
-            const pvFactor = (downPaymentPercent - 20) / (80 - 20); // Изменили с 15 на 20
+            const pvFactor = (downPaymentPercent - 20) / (80 - 20);
             
             // Коэффициент скидки от срока (чем меньше срок, тем больше скидка)
-            // Для сроков больше 4 месяцев скидка уменьшается с увеличением срока
-            const termFactor = (currentMaxTerm - term) / (currentMaxTerm - 4); // Изменили с 5 на 4
+            const termFactor = (currentMaxTerm - term) / (currentMaxTerm - 4);
             
             // Общий коэффициент скидки (среднее между скидкой за ПВ и скидкой за срок)
             const totalDiscountFactor = (pvFactor + termFactor) / 2;
@@ -816,7 +910,7 @@
                 // Пересчитываем процент на основе введенной суммы
                 if (totalCost > 0) {
                     const calculatedPercent = Math.round((downPaymentAmountValue / totalCost) * 100);
-                    const limitedPercent = Math.max(20, Math.min(80, calculatedPercent)); // Изменили с 15 на 20
+                    const limitedPercent = Math.max(20, Math.min(80, calculatedPercent));
                     downPaymentSlider.value = limitedPercent;
                     downPaymentValue.textContent = limitedPercent + '%';
                 }
@@ -874,9 +968,27 @@
             calculate();
         });
         
+        // Слушатель для скидки риелтора
+        realtorDiscountCheckbox.addEventListener('change', function() {
+            updatePriceDisplay();
+            calculate();
+        });
+        
         repairCostInput.addEventListener('input', calculate);
         
         dduObjectsCostInput.addEventListener('input', calculate);
+        
+        // Сворачивание/разворачивание опций
+        optionsToggle.addEventListener('click', function() {
+            optionsContent.classList.toggle('active');
+            optionsToggleIcon.classList.toggle('active');
+            
+            if (optionsContent.classList.contains('active')) {
+                optionsToggleIcon.textContent = '−';
+            } else {
+                optionsToggleIcon.textContent = '+';
+            }
+        });
         
         // Инициализация
         loadApartmentsData();
