@@ -10,7 +10,8 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #fef5f5;
+            background-color: #FFFFFF;
+            color: #1f2022;
         }
         .calculator-container {
             display: flex;
@@ -18,19 +19,19 @@
         }
         .calculator-form {
             flex: 1;
-            background: white;
+            background: #FFFFFF;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(220, 53, 69, 0.1);
-            border: 1px solid #f8d7da;
+            box-shadow: 0 2px 10px rgba(202, 0, 0, 0.1);
+            border: 1px solid #DADADA;
         }
         .calculator-results {
             flex: 1;
-            background: #fdf2f2;
+            background: #FFFFFF;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(220, 53, 69, 0.1);
-            border: 1px solid #f8d7da;
+            box-shadow: 0 2px 10px rgba(202, 0, 0, 0.1);
+            border: 1px solid #DADADA;
         }
         .form-group {
             margin-bottom: 20px;
@@ -39,14 +40,16 @@
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-            color: #721c24;
+            color: #1f2022;
         }
         select, input[type="range"], input[type="number"] {
             width: 100%;
             padding: 8px;
-            border: 1px solid #dc3545;
+            border: 1px solid #DADADA;
             border-radius: 4px;
             margin-bottom: 10px;
+            background-color: #FFFFFF;
+            color: #1f2022;
         }
         .value-display {
             display: flex;
@@ -58,27 +61,28 @@
             justify-content: space-between;
             margin-bottom: 15px;
             padding: 10px 0;
-            border-bottom: 1px solid #dc3545;
+            border-bottom: 1px solid #DADADA;
         }
         .highlight {
             font-size: 1.2em;
             font-weight: bold;
-            color: #c82333;
+            color: #CA0000;
         }
         .price-comparison {
             display: flex;
             justify-content: space-between;
             margin: 15px 0;
             padding: 10px;
-            background: #f8d7da;
+            background: #f8f8f8;
             border-radius: 5px;
+            border: 1px solid #DADADA;
         }
         .discount {
-            color: #28a745;
+            color: #CA0000;
             font-weight: bold;
         }
         .warning {
-            color: #dc3545;
+            color: #CA0000;
             font-weight: bold;
         }
         .input-with-slider {
@@ -90,19 +94,21 @@
             width: 150px;
         }
         .apartment-info {
-            background: #fff3cd;
+            background: #f8f8f8;
             padding: 10px;
             border-radius: 5px;
             margin: 10px 0;
+            border: 1px solid #DADADA;
         }
         .sold-notice {
-            background: #f8d7da;
-            color: #721c24;
+            background: #fff0f0;
+            color: #CA0000;
             padding: 10px;
             border-radius: 5px;
             margin: 10px 0;
             text-align: center;
             font-weight: bold;
+            border: 1px solid #CA0000;
         }
         .checkbox-group {
             display: flex;
@@ -111,10 +117,11 @@
             margin: 15px 0;
         }
         .options-container {
-            background: #f8d7da;
+            background: #f8f8f8;
             padding: 10px;
             border-radius: 5px;
             margin: 10px 0;
+            border: 1px solid #DADADA;
         }
         .options-header {
             display: flex;
@@ -122,7 +129,7 @@
             align-items: center;
             cursor: pointer;
             padding: 10px;
-            background: #dc3545;
+            background: #CA0000;
             color: white;
             border-radius: 5px;
             margin-bottom: 10px;
@@ -134,7 +141,7 @@
         .options-content {
             display: none;
             padding: 10px;
-            background: white;
+            background: #FFFFFF;
             border-radius: 5px;
             margin-top: 10px;
         }
@@ -152,35 +159,36 @@
         .apartment-details {
             margin-top: 20px;
             padding: 15px;
-            background: #f8d7da;
+            background: #f8f8f8;
             border-radius: 5px;
+            border: 1px solid #DADADA;
         }
         .apartment-details h3 {
             margin-top: 0;
-            color: #721c24;
+            color: #1f2022;
         }
         .apartment-details div {
             margin-bottom: 5px;
         }
         .min-payment-info {
             font-size: 0.9em;
-            color: #721c24;
+            color: #666666;
             margin-top: 5px;
         }
         .term-info {
             font-size: 0.9em;
-            color: #721c24;
+            color: #666666;
             margin-top: 5px;
         }
         h2 {
             margin-top: 0;
-            color: #721c24;
+            color: #1f2022;
         }
         h1 {
-            color: #721c24;
+            color: #1f2022;
         }
         .plan-button {
-            background-color: #dc3545;
+            background-color: #CA0000;
             color: white;
             border: none;
             padding: 8px 15px;
@@ -192,11 +200,26 @@
             display: inline-block;
         }
         .plan-button:hover {
-            background-color: #c82333;
+            background-color: #a80000;
         }
         .plan-button:disabled {
-            background-color: #6c757d;
+            background-color: #999999;
             cursor: not-allowed;
+        }
+        .realtor-discount {
+            background: #f8f8f8;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+            border: 1px solid #DADADA;
+        }
+        .additional-costs {
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border: 1px solid #DADADA;
         }
         @media (max-width: 768px) {
             .calculator-container {
@@ -207,7 +230,7 @@
             -webkit-appearance: none;
             height: 8px;
             border-radius: 5px;
-            background: #d1d1d1;
+            background: #e0e0e0;
             outline: none;
         }
         input[type="range"]::-webkit-slider-thumb {
@@ -216,15 +239,41 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: #dc3545;
+            background: #CA0000;
             cursor: pointer;
         }
         input[type="range"]::-moz-range-thumb {
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: #dc3545;
+            background: #CA0000;
             cursor: pointer;
+        }
+        
+        /* Стилизация скроллбаров */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #CA0000;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a80000;
+        }
+        
+        /* Фокус для полей ввода */
+        select:focus, input[type="number"]:focus, input[type="range"]:focus {
+            outline: none;
+            border-color: #CA0000;
+            box-shadow: 0 0 0 2px rgba(202, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -286,32 +335,34 @@
                         <input type="checkbox" id="managerDiscount">
                         <label for="managerDiscount">Скидка менеджера</label>
                     </div>
-                    <div style="font-size: 0.9em; color: #721c24; margin-bottom: 15px;">
+                    <div style="font-size: 0.9em; color: #666666; margin-bottom: 15px;">
                         При включенной скидке менеджера цена уменьшается на 100,000 ₽
                     </div>
                     
                     <!-- Скидка риелтора (только для ЖК "ЧИСТЫЕ ПРУДЫ") -->
-                    <div id="realtorDiscountContainer" style="display: none;">
+                    <div id="realtorDiscountContainer" class="realtor-discount">
                         <div class="checkbox-group">
                             <input type="checkbox" id="realtorDiscount">
                             <label for="realtorDiscount">Скидка риелтора</label>
                         </div>
-                        <div style="font-size: 0.9em; color: #721c24;">
+                        <div style="font-size: 0.9em; color: #666666;">
                             При включенной скидке риелтора цена уменьшается на 100,000 ₽
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Новые поля для ремонта и объектов в ДДУ -->
-            <div class="form-group">
-                <label for="repairCost">Цена ремонта (₽):</label>
-                <input type="number" id="repairCost" value="0" min="0" step="10000">
-            </div>
-            
-            <div class="form-group">
-                <label for="dduObjectsCost">Объекты, зашитые в ДДУ (₽):</label>
-                <input type="number" id="dduObjectsCost" value="0" min="0" step="10000">
+            <!-- Поля для ремонта и объектов в ДДУ -->
+            <div class="additional-costs">
+                <div class="form-group">
+                    <label for="repairCost">Цена ремонта (₽):</label>
+                    <input type="number" id="repairCost" value="0" min="0" step="10000">
+                </div>
+                
+                <div class="form-group">
+                    <label for="dduObjectsCost">Объекты, зашитые в ДДУ (₽):</label>
+                    <input type="number" id="dduObjectsCost" value="0" min="0" step="10000">
+                </div>
             </div>
             
             <div class="form-group">
@@ -454,7 +505,7 @@
 
         // Текущие цены выбранной квартиры
         let currentBasePrice = 0;
-        let currentDiscountPrice = 0; // Теперь это будет 80% от базовой цены
+        let currentDiscountPrice = 0; // 80% от базовой цены
         let currentStatus = '';
         let currentComplex = '';
         let currentSection = '';
@@ -536,7 +587,7 @@
             const deadlineDate = new Date(deliveryDate);
             deadlineDate.setMonth(deadlineDate.getMonth() - 4);
             
-            // Расчет разницы в месяцаи
+            // Расчет разницы в месяцах
             let monthsDiff = (deadlineDate.getFullYear() - nextMonth.getFullYear()) * 12;
             monthsDiff += deadlineDate.getMonth() - nextMonth.getMonth();
             
