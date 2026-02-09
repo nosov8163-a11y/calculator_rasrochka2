@@ -518,13 +518,12 @@
         // Режим ручного ввода ПВ
         let isManualDownPayment = false;
 
-        // Даты ввода по проектам
-        const deliveryDates = {
-            'ЧИСТЫЕ ПРУДЫ': 'Сентябрь 2027',
-            'Счастье': 'Июнь 2026',
-            'Тёплые кварталы': 'Сентябрь 2026',
-            'Бодровский': 'Декабрь 2026',
-            'Комсомольский': 'Декабрь 2027'
+        // Фиксированные сроки рассрочки для каждого ЖК (на февраль 2026)
+        const initialTerms = {
+            'ЧИСТЫЕ ПРУДЫ': 14,
+            'Тёплые кварталы': 3,
+            'Бодровский': 6,
+            'Комсомольский': 17
         };
 
         // Минимальные платежи по проектам
@@ -567,32 +566,35 @@
             }
         };
 
-        // Функция для расчета максимального срока рассрочки
-        function calculateMaxTerm(complex) {
-            const deliveryDateStr = deliveryDates[complex];
-            if (!deliveryDateStr) return 12; // По умолчанию 12 месяцев
+        // Функция для расчета текущего срока рассрочки с учетом прошедшего времени
+        function calculateCurrentTerm(complex) {
+            // Базовый срок на февраль 2026
+            const baseTerm = initialTerms[complex];
+            if (!baseTerm) return 12; // По умолчанию 12 месяцев для проектов без фиксированного срока
             
-            // Парсим дату ввода
-            const [monthStr, yearStr] = deliveryDateStr.split(' ');
-            const months = {
-                'Январь': 0, 'Февраль': 1, 'Март': 2, 'Апрель': 3, 'Май': 4, 'Июнь': 5,
-                'Июль': 6, 'Август': 7, 'Сентябрь': 8, 'Октябрь': 9, 'Ноябрь': 10, 'Декабрь': 11
-            };
+            // Сегодняшняя дата (09.02.2026)
+            const today = new Date(2026, 1, 9); // Февраль - 1 (так как месяцы с 0)
             
-            const deliveryDate = new Date(parseInt(yearStr), months[monthStr], 1);
-            const today = new Date();
-            const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+            // Начальная точка отсчета - март 2026
+            const startReductionDate = new Date(2026, 2, 1); // Март 2026
             
-            // Дата окончания рассрочки (за 4 месяца до ввода)
-            const deadlineDate = new Date(deliveryDate);
-            deadlineDate.setMonth(deadlineDate.getMonth() - 4);
+            // Если сегодняшняя дата раньше марта 2026, возвращаем базовый срок
+            if (today < startReductionDate) {
+                return baseTerm;
+            }
             
-            // Расчет разницы в месяцах
-            let monthsDiff = (deadlineDate.getFullYear() - nextMonth.getFullYear()) * 12;
-            monthsDiff += deadlineDate.getMonth() - nextMonth.getMonth();
+            // Вычисляем, сколько полных месяцев прошло с марта 2026
+            let monthsPassed = (today.getFullYear() - startReductionDate.getFullYear()) * 12;
+            monthsPassed += today.getMonth() - startReductionDate.getMonth();
             
-            // Убеждаемся, что срок не отрицательный и не меньше 1 месяца
-            return Math.max(1, monthsDiff);
+            // Если мы в том же месяце (март), но число меньше 1, то monthsPassed = 0
+            if (monthsPassed < 0) monthsPassed = 0;
+            
+            // Уменьшаем срок на количество прошедших месяцев
+            let currentTerm = baseTerm - monthsPassed;
+            
+            // Срок не может быть меньше 1 месяца
+            return Math.max(1, currentTerm);
         }
 
         // Функция для получения типа комнатности в текстовом формате
@@ -628,13 +630,14 @@
                 const response = await fetch(SCRIPT_URL);
                 const data = await response.json();
                 
-                // Фильтруем только квартиры и исключаем проект "АСТРО" и статус "Субаренда (продано)"
+                // Фильтруем только квартиры и исключаем проект "АСТРО", "Счастье" и статус "Субаренда (продано)"
                 apartmentsData = data.filter(item => {
                     const isApartment = item["Тип помещения"] && item["Тип помещения"].toLowerCase() === "квартира";
                     const isNotAstro = item["Название ЖК"] && !item["Название ЖК"].toLowerCase().includes("астро");
+                    const isNotSchastie = item["Название ЖК"] && item["Название ЖК"] !== "Счастье";
                     const isNotSubRent = item["Статус"] !== "Субаренда (продано)";
                     
-                    return isApartment && isNotAstro && isNotSubRent;
+                    return isApartment && isNotAstro && isNotSchastie && isNotSubRent;
                 });
                 
                 populateComplexes();
@@ -800,7 +803,7 @@
 
         // Функция обновления максимального срока рассрочки
         function updateMaxTerm() {
-            currentMaxTerm = calculateMaxTerm(currentComplex);
+            currentMaxTerm = calculateCurrentTerm(currentComplex);
             termInput.max = currentMaxTerm;
             termMax.textContent = `${currentMaxTerm} мес`;
             
@@ -809,11 +812,16 @@
             termValue.textContent = `${currentMaxTerm} мес`;
             
             // Обновляем информацию о сроке
-            const deliveryDate = deliveryDates[currentComplex];
-            if (deliveryDate) {
-                termInfo.textContent = `Срок рассрочки до: ${deliveryDate} (макс. ${currentMaxTerm} мес)`;
-            } else {
+            const baseTerm = initialTerms[currentComplex] || 12;
+            const today = new Date(2026, 1, 9);
+            const startReductionDate = new Date(2026, 2, 1);
+            
+            if (today < startReductionDate) {
                 termInfo.textContent = `Максимальный срок рассрочки: ${currentMaxTerm} мес`;
+            } else {
+                const monthsPassed = (today.getFullYear() - startReductionDate.getFullYear()) * 12 + 
+                                     (today.getMonth() - startReductionDate.getMonth());
+                termInfo.textContent = `Максимальный срок рассрочки: ${currentMaxTerm} мес (было ${baseTerm} мес на февраль 2026, прошло ${monthsPassed} мес)`;
             }
         }
 
