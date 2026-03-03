@@ -206,13 +206,14 @@
             background-color: #999999;
             cursor: not-allowed;
         }
+        /* Скидка риелтора теперь всегда видна */
         .realtor-discount {
             background: #f8f8f8;
             padding: 10px;
             border-radius: 5px;
             margin: 10px 0;
-            display: none;
             border: 1px solid #DADADA;
+            display: block; /* изменено с none на block */
         }
         .additional-costs {
             background: #f8f8f8;
@@ -339,7 +340,7 @@
                         При включенной скидке менеджера цена уменьшается на 100,000 ₽
                     </div>
                     
-                    <!-- Скидка риелтора (только для ЖК "ЧИСТЫЕ ПРУДЫ") -->
+                    <!-- Скидка риелтора теперь всегда видна (убрано условие по ЖК) -->
                     <div id="realtorDiscountContainer" class="realtor-discount">
                         <div class="checkbox-group">
                             <input type="checkbox" id="realtorDiscount">
@@ -670,14 +671,8 @@
             apartmentFullDetails.style.display = 'none';
             resetCalculation();
 
-            // Показываем/скрываем скидку риелтора в зависимости от выбранного ЖК
-            if (complex === 'ЧИСТЫЕ ПРУДЫ') {
-                realtorDiscountContainer.style.display = 'block';
-            } else {
-                realtorDiscountContainer.style.display = 'none';
-                // Сбрасываем чекбокс скидки риелтора
-                realtorDiscountCheckbox.checked = false;
-            }
+            // Скидка риелтора больше не зависит от ЖК, поэтому код управления видимостью удалён
+            // Контейнер всегда виден благодаря CSS .realtor-discount { display: block; }
 
             if (complex) {
                 const sections = [...new Set(apartmentsData
@@ -761,15 +756,6 @@
                 currentRoomType = selectedOption.dataset.roomType;
                 currentArea = selectedOption.dataset.area;
                 currentPlanUrl = selectedOption.dataset.planUrl;
-
-                // Показываем/скрываем скидку риелтора в зависимости от выбранного ЖК
-                if (currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
-                    realtorDiscountContainer.style.display = 'block';
-                } else {
-                    realtorDiscountContainer.style.display = 'none';
-                    // Сбрасываем чекбокс скидки риелтора
-                    realtorDiscountCheckbox.checked = false;
-                }
 
                 // Проверяем статус квартиры
                 if (currentStatus === "Продано") {
@@ -867,7 +853,7 @@
             discountPriceDisplay.textContent = formatMoney(adjustedDiscountPrice);
         }
 
-        // Функция получения скорректированной цены со скидкой
+        // Функция получения скорректированной цены со скидкой (теперь скидка риелтора применяется для всех ЖК)
         function getAdjustedDiscountPrice() {
             // Начинаем с цены со скидкой (80% от базовой цены)
             let adjustedPrice = currentDiscountPrice;
@@ -880,8 +866,8 @@
                 totalDiscount += 100000;
             }
             
-            // Скидка риелтора применяется только для ЖК "ЧИСТЫЕ ПРУДЫ"
-            if (currentComplex === 'ЧИСТЫЕ ПРУДЫ' && realtorDiscountCheckbox.checked) {
+            // Скидка риелтора применяется для всех ЖК (убрано условие по комплексу)
+            if (realtorDiscountCheckbox.checked) {
                 totalDiscount += 100000;
             }
             
