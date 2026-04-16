@@ -437,6 +437,10 @@
                 <span>Остаток в конце срока:</span>
                 <span id="resultRemainingAmount" class="highlight">0 ₽</span>
             </div>
+            <div class="result-item">
+                <span>Скидка:</span>
+                <span id="resultDiscountAmount" class="highlight">0 ₽</span>
+            </div>
             
             <div id="apartmentFullDetails" class="apartment-details" style="display: none;">
                 <h3>Информация о квартире:</h3>
@@ -491,6 +495,7 @@
         const resultMonthlyPayment = document.getElementById('resultMonthlyPayment');
         const resultTotalPayments = document.getElementById('resultTotalPayments');
         const resultRemainingAmount = document.getElementById('resultRemainingAmount');
+        const resultDiscountAmount = document.getElementById('resultDiscountAmount');
         
         // Информация о квартире
         const apartmentComplex = document.getElementById('apartmentComplex');
@@ -923,6 +928,7 @@
             resultMonthlyPayment.textContent = formatMoney(0);
             resultTotalPayments.textContent = formatMoney(0);
             resultRemainingAmount.textContent = formatMoney(0);
+            resultDiscountAmount.textContent = formatMoney(0);
             
             minPaymentInfo.textContent = '';
             monthlyPaymentInput.min = 0;
@@ -968,6 +974,7 @@
             const loanAmount = Math.round(totalCost - downPaymentAmountValue);
             const totalPayments = Math.round(monthlyPayment * term);
             const remainingAmount = Math.round(loanAmount - totalPayments);
+            const discountAmount = Math.round(currentBasePrice - finalPrice);
             
             downPaymentAmount.textContent = formatMoney(downPaymentAmountValue);
             termValue.textContent = `${term} мес`;
@@ -981,6 +988,7 @@
             resultMonthlyPayment.textContent = formatMoney(monthlyPayment);
             resultTotalPayments.textContent = formatMoney(totalPayments);
             resultRemainingAmount.textContent = formatMoney(remainingAmount);
+            resultDiscountAmount.textContent = formatMoney(discountAmount);
             
             if (remainingAmount > 0) {
                 resultRemainingAmount.className = 'highlight warning';
