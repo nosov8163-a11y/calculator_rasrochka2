@@ -524,12 +524,16 @@
         // Режим ручного ввода ПВ
         let isManualDownPayment = false;
 
-        // Фиксированные сроки рассрочки для каждого ЖК (на февраль 2026)
-        const initialTerms = {
-            'ЧИСТЫЕ ПРУДЫ': 14,
-            'Тёплые кварталы': 3,
-            'Бодровский': 6,
-            'Комсомольский': 17
+        // Даты ввода по проектам (месяц ввода: 1-12)
+        const completionDates = {
+            'Тёплые кварталы': { year: 2026, month: 12 },
+            'АСТРО': { year: 2026, month: 5 },
+            'Счастье ГП-4': { year: 2026, month: 5 },
+            'Счастье ГП-5': { year: 2027, month: 11 },
+            'Бодровский': { year: 2027, month: 3 },
+            'ЧИСТЫЕ ПРУДЫ': { year: 2027, month: 8 },
+            'Комсомольский': { year: 2027, month: 11 },
+            'УРАЛКВАРТАЛ ГП-9': { year: 2028, month: 12 }
         };
 
         // Минимальные платежи по проектам
@@ -572,35 +576,37 @@
             }
         };
 
-        // Функция для расчета текущего срока рассрочки с учетом прошедшего времени
-        function calculateCurrentTerm(complex) {
-            // Базовый срок на февраль 2026
-            const baseTerm = initialTerms[complex];
-            if (!baseTerm) return 12; // По умолчанию 12 месяцев для проектов без фиксированного срока
-            
-            // Сегодняшняя дата (09.02.2026)
-            const today = new Date(2026, 1, 9); // Февраль - 1 (так как месяцы с 0)
-            
-            // Начальная точка отсчета - март 2026
-            const startReductionDate = new Date(2026, 2, 1); // Март 2026
-            
-            // Если сегодняшняя дата раньше марта 2026, возвращаем базовый срок
-            if (today < startReductionDate) {
-                return baseTerm;
+        function getCompletionKey(complex, section) {
+            if (complex === 'Счастье') {
+                if (section && section.includes('ГП-4')) return 'Счастье ГП-4';
+                if (section && section.includes('ГП-5')) return 'Счастье ГП-5';
             }
-            
-            // Вычисляем, сколько полных месяцев прошло с марта 2026
-            let monthsPassed = (today.getFullYear() - startReductionDate.getFullYear()) * 12;
-            monthsPassed += today.getMonth() - startReductionDate.getMonth();
-            
-            // Если мы в том же месяце (март), но число меньше 1, то monthsPassed = 0
-            if (monthsPassed < 0) monthsPassed = 0;
-            
-            // Уменьшаем срок на количество прошедших месяцев
-            let currentTerm = baseTerm - monthsPassed;
-            
-            // Срок не может быть меньше 1 месяца
-            return Math.max(1, currentTerm);
+            if (complex === 'УРАЛКВАРТАЛ') {
+                if (section && section.includes('ГП-9')) return 'УРАЛКВАРТАЛ ГП-9';
+            }
+            return complex;
+        }
+
+        // Дедлайн = дата ввода - 2 месяца
+        function getInstallmentDeadline(complex, section) {
+            const key = getCompletionKey(complex, section);
+            const completion = completionDates[key];
+            if (!completion) return null;
+            return new Date(completion.year, completion.month - 1 - 2, 1);
+        }
+
+        // Максимальный срок рассрочки в месяцах: от текущей даты до дедлайна, округление вниз, минимум 1
+        function calculateCurrentTerm(complex, section) {
+            const deadline = getInstallmentDeadline(complex, section);
+            if (!deadline) return 12; // fallback для проектов без даты ввода
+
+            const today = new Date();
+            let monthsLeft = (deadline.getFullYear() - today.getFullYear()) * 12 +
+                             (deadline.getMonth() - today.getMonth());
+            if (today.getDate() > 1) {
+                monthsLeft -= 1;
+            }
+            return Math.max(1, monthsLeft);
         }
 
         // Функция для получения типа комнатности в текстовом формате
@@ -794,7 +800,7 @@
 
         // Функция обновления максимального срока рассрочки
         function updateMaxTerm() {
-            currentMaxTerm = calculateCurrentTerm(currentComplex);
+            currentMaxTerm = calculateCurrentTerm(currentComplex, currentSection);
             termInput.max = currentMaxTerm;
             termMax.textContent = `${currentMaxTerm} мес`;
             
@@ -803,17 +809,13 @@
             termValue.textContent = `${currentMaxTerm} мес`;
             
             // Обновляем информацию о сроке
-            const baseTerm = initialTerms[currentComplex] || 12;
-            const today = new Date(2026, 1, 9);
-            const startReductionDate = new Date(2026, 2, 1);
-            
-            if (today < startReductionDate) {
-                termInfo.textContent = `Максимальный срок рассрочки: ${currentMaxTerm} мес`;
-            } else {
-                const monthsPassed = (today.getFullYear() - startReductionDate.getFullYear()) * 12 + 
-                                     (today.getMonth() - startReductionDate.getMonth());
-                termInfo.textContent = `Максимальный срок рассрочки: ${currentMaxTerm} мес (было ${baseTerm} мес на февраль 2026, прошло ${monthsPassed} мес)`;
+            const deadline = getInstallmentDeadline(currentComplex, currentSection);
+            if (!deadline) {
+                termInfo.textContent = `Максимальный срок рассрочки: ${currentMaxTerm} мес (дата ввода не задана)`;
+                return;
             }
+            const deadlineText = deadline.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long' });
+            termInfo.textContent = `Максимальный срок рассрочки: ${currentMaxTerm} мес (дедлайн: ${deadlineText})`;
         }
 
         // Функция обновления полной информации о квартире
