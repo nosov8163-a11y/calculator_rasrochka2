@@ -648,14 +648,16 @@
                 const response = await fetch(SCRIPT_URL);
                 const data = await response.json();
                 
-                // Фильтруем только квартиры и исключаем проект "АСТРО", "Счастье" и статус "Субаренда (продано)"
+                // Фильтруем только квартиры, исключаем "АСТРО",
+                // а для "Счастье" оставляем только ГП-5
                 apartmentsData = data.filter(item => {
                     const isApartment = item["Тип помещения"] && item["Тип помещения"].toLowerCase() === "квартира";
                     const isNotAstro = item["Название ЖК"] && !item["Название ЖК"].toLowerCase().includes("астро");
-                    const isNotSchastie = item["Название ЖК"] && item["Название ЖК"] !== "Счастье";
+                    const isAllowedSchastie = item["Название ЖК"] !== "Счастье" ||
+                        (item["Название дома"] && String(item["Название дома"]).includes("ГП-5"));
                     const isNotSubRent = item["Статус"] !== "Субаренда (продано)";
                     
-                    return isApartment && isNotAstro && isNotSchastie && isNotSubRent;
+                    return isApartment && isNotAstro && isAllowedSchastie && isNotSubRent;
                 });
                 
                 populateComplexes();
