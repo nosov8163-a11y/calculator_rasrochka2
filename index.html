@@ -349,6 +349,14 @@
                         <div style="font-size: 0.9em; color: #666666;">
                             При включенной скидке риелтора цена уменьшается на 100,000 ₽
                         </div>
+                    </div>                    <div class="realtor-discount">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="etajiDiscount">
+                            <label for="etajiDiscount">Скидка 1,5% для агентов ЭТАЖИ</label>
+                        </div>
+                        <div style="font-size: 0.9em; color: #666666;">
+                            При включенной скидке отнимает 1,5% от стоимости квартиры дополнительно к купону
+                        </div>
                     </div>
                 </div>
             </div>
@@ -467,6 +475,7 @@
         const managerDiscountCheckbox = document.getElementById('managerDiscount');
         const realtorDiscountContainer = document.getElementById('realtorDiscountContainer');
         const realtorDiscountCheckbox = document.getElementById('realtorDiscount');
+        const etajiDiscountCheckbox = document.getElementById('etajiDiscount');
         const optionsToggle = document.getElementById('optionsToggle');
         const optionsToggleIcon = document.getElementById('optionsToggleIcon');
         const optionsContent = document.getElementById('optionsContent');
@@ -885,6 +894,9 @@
             if (realtorDiscountCheckbox.checked) {
                 totalDiscount += 100000;
             }
+            if (etajiDiscountCheckbox.checked) {
+                totalDiscount += currentBasePrice * 0.015;
+            }
             
             // Применяем общую скидку
             adjustedPrice -= totalDiscount;
@@ -1033,6 +1045,11 @@
         
         // Слушатель для скидки риелтора
         realtorDiscountCheckbox.addEventListener('change', function() {
+            updatePriceDisplay();
+            calculate();
+        });
+        
+        etajiDiscountCheckbox.addEventListener('change', function() {
             updatePriceDisplay();
             calculate();
         });
