@@ -645,9 +645,9 @@
             return 35000;
         }
 
-        // Функция расчета цены со скидкой (80% от базовой цены)
-        function calculateDiscountPrice(basePrice) {
-            return Math.round(basePrice * 0.8);
+        // Цена со скидкой рассчитывается от цены продажи с надбавкой 200 000 ₽
+        function calculateDiscountPrice(salePrice) {
+            return salePrice + 200000;
         }
 
         // Загрузка данных из Google Таблицы
@@ -737,7 +737,7 @@
                     .map(item => ({
                         number: item["Номер помещения"],
                         basePrice: item["Цена"],
-                        discountPrice: item["Цена продажи"], // Это поле теперь не используется для расчета, но сохраняем для совместимости
+                        discountPrice: item["Цена продажи"],
                         complex: item["Название ЖК"],
                         section: item["Название дома"],
                         type: item["Тип помещения"],
@@ -753,7 +753,7 @@
                     option.value = apartment.number;
                     option.textContent = `Квартира ${apartment.number}`;
                     option.dataset.basePrice = apartment.basePrice;
-                    option.dataset.discountPrice = apartment.discountPrice; // Сохраняем, но не используем для расчета
+                    option.dataset.discountPrice = apartment.discountPrice;
                     option.dataset.complex = apartment.complex;
                     option.dataset.section = apartment.section;
                     option.dataset.status = apartment.status;
@@ -775,8 +775,8 @@
 
             if (selectedOption.value) {
                 currentBasePrice = parseInt(selectedOption.dataset.basePrice) || 0;
-                // Теперь discountPrice рассчитывается как 80% от базовой цены
-                currentDiscountPrice = calculateDiscountPrice(currentBasePrice);
+                const salePrice = parseInt(selectedOption.dataset.discountPrice) || 0;
+                currentDiscountPrice = calculateDiscountPrice(salePrice);
                 currentStatus = selectedOption.dataset.status || '';
                 currentComplex = selectedOption.dataset.complex;
                 currentSection = selectedOption.dataset.section;
@@ -879,7 +879,7 @@
 
         // Функция получения скорректированной цены со скидкой (теперь скидка риелтора применяется для всех ЖК)
         function getAdjustedDiscountPrice() {
-            // Начинаем с цены со скидкой (80% от базовой цены)
+            // Начинаем с цены продажи, увеличенной на 200 000 ₽
             let adjustedPrice = currentDiscountPrice;
             
             // Вычитаем скидки в зависимости от выбранных чекбоксов
